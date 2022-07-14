@@ -5,6 +5,7 @@ export type GetCharFn = (peek?: boolean) => string | null;
 export interface LexContext {
   line: number;
   start: number;
+  parenCount: number;
   getChar: GetCharFn;
 }
 
@@ -157,13 +158,21 @@ export const next = (ctx: LexContext): Token => {
       case '\r':
         continue;
       case '\n':
+        const pos = {
+          line: ctx.line,
+          start: ctx.start,
+          end: ctx.start,
+        };
         ++ctx.line;
         ctx.start = 1;
+        if (ctx.parenCount === 0) return { type: 'NEWLINE', pos };
         continue;
       // paren
       case '(':
+        ++ctx.parenCount;
         return makeToken(ctx, 'LParen', 1);
       case ')':
+        --ctx.parenCount;
         return makeToken(ctx, 'RParen', 1);
       case '[':
         return makeToken(ctx, 'LBracket', 1);

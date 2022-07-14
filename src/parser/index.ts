@@ -10,7 +10,7 @@ export const lex = (src: string) => {
     if (!peek) ++i;
     return res;
   };
-  const lexCtx: LexContext = { getChar, line: 1, start: 1 };
+  const lexCtx: LexContext = { getChar, line: 1, start: 1, parenCount: 0 };
   const res: Token[] = [];
 
   while (true) {
@@ -35,7 +35,7 @@ const parseAst = (src: string) => {
     if (!peek) ++i;
     return res;
   };
-  const lexCtx: LexContext = { getChar, line: 1, start: 1 };
+  const lexCtx: LexContext = { getChar, line: 1, start: 1, parenCount: 0 };
 
   let token = next(lexCtx);
   const getToken = (peek?: boolean): Token => {

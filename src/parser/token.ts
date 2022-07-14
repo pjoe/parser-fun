@@ -48,6 +48,7 @@ export type TokenType =
   | 'Dot'
   | 'Quote'
   | 'Arrow'
+  | 'NEWLINE'
   | 'EOF'
   | 'Unknown';
 
