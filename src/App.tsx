@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './App.css';
-import { parse } from './parser';
+import { compile } from './parser';
 
 function App() {
   const [source, setSource] = useState('');
@@ -21,7 +21,7 @@ function App() {
       </div>
       <div className="card">
         <div className="buttons">
-          <button onClick={() => setResult(parse(source))}>Parse</button>
+          <button onClick={() => setResult(compile(source))}>Parse</button>
           <button
             onClick={() => {
               setSource('');
