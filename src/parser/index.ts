@@ -1,6 +1,7 @@
-import { setSourceMapRange } from 'typescript/lib/tsserverlibrary';
 
 import { lex } from './lexer';
+
+
 
 export const parse = (src: string) => {
   return lex(src)
