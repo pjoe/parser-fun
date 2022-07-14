@@ -1,4 +1,4 @@
-export type NodeType = 'Error' | 'IntLit' | 'BinOp';
+export type NodeType = 'Error' | 'IntLit' | 'BinOp' | 'Paren';
 
 export interface Node {
   type: NodeType;
@@ -19,4 +19,8 @@ export interface BinOp extends Exp {
   op: BinOpType;
   left: Exp;
   right: Exp;
+}
+
+export interface Paren extends Exp {
+  exp: Exp;
 }

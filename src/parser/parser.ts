@@ -1,4 +1,4 @@
-import { Node, AstError, IntLit, Exp, BinOpType, BinOp } from './ast';
+import { Node, AstError, IntLit, Exp, BinOpType, BinOp, Paren } from './ast';
 import { Token, TokenType } from './token';
 
 export type GetTokenFn = (peek?: boolean) => Token;
@@ -25,9 +25,10 @@ const parseParenExp = (ctx: ParserContext): Exp => {
   const t = peek(ctx);
   if (t.type === 'LParen') {
     next(ctx);
-    const e = parseExp(ctx);
+    const exp = parseExp(ctx);
     expect(ctx, 'RParen');
-    return e;
+    const paren: Paren = { type: 'Paren', exp };
+    return paren;
   } else {
     return parseIntLit(ctx);
   }

@@ -14,7 +14,7 @@ function App() {
         <textarea
           className="source"
           id="src"
-          rows={10}
+          rows={3}
           onChange={(e) => setSource(e.target.value)}
           value={source}
         ></textarea>

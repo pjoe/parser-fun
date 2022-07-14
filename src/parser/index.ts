@@ -1,8 +1,9 @@
 import { LexContext, next } from './lexer';
 import { parse, ParserContext } from './parser';
 import { Token } from './token';
+import { EvalVisitor } from './visitor';
 
-const lexDebug = (src: string) => {
+export const lex = (src: string) => {
   let i = 0;
   const getChar = (peek?: boolean) => {
     const res = i < src.length ? src[i] : null;
@@ -27,7 +28,7 @@ const lexDebug = (src: string) => {
     .join('\n');
 };
 
-const _parse = (src: string) => {
+const parseAst = (src: string) => {
   let i = 0;
   const getChar = (peek?: boolean) => {
     const res = i < src.length ? src[i] : null;
@@ -47,7 +48,14 @@ const _parse = (src: string) => {
   return parse(parserCtx);
 };
 
-export const compile = (src: string) => {
-  //return lexDebug(src);
-  return JSON.stringify(_parse(src), undefined, 1);
+const evaluate = (src: string) => {
+  const ast = parseAst(src);
+  const visitor = new EvalVisitor();
+  return visitor.visit(ast);
+};
+
+export const compile = (src: string, mode: string): string => {
+  if (mode === 'lex') return lex(src);
+  if (mode === 'eval') return evaluate(src).toString();
+  return JSON.stringify(parseAst(src), undefined, 1);
 };
