@@ -44,15 +44,26 @@ const parsePrimaryExp = (ctx: ParserContext): Exp => {
   }
 };
 
-// UnaryExp ::= PrimaryExp | ('-' | '+') UnaryExp
+// PowerExp ::= PrimaryExp ['**' UnaryExp]
+const parsePowerExp = (ctx: ParserContext): Exp => {
+  const left = parsePrimaryExp(ctx);
+  const t = peek(ctx);
+  if (t.type !== 'Power') return left;
+  next(ctx);
+  const right = parseUnaryExp(ctx);
+  const binop: BinOp = { type: 'BinOp', op: '**', left, right };
+  return binop;
+};
+
+// UnaryExp ::= PowerExp | ('-' | '+') UnaryExp
 const parseUnaryExp = (ctx: ParserContext): Exp => {
-  let t = peek(ctx);
+  const t = peek(ctx);
   let op: UnOpType;
   if (t.type === 'Dash') op = '-';
   else if (t.type === 'Plus') op = '+';
-  else return parsePrimaryExp(ctx);
+  else return parsePowerExp(ctx);
   next(ctx);
-  const exp = parsePrimaryExp(ctx);
+  const exp = parsePowerExp(ctx);
   const unop: UnOp = { type: 'UnOp', op, exp };
   return unop;
 };

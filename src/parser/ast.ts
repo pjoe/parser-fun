@@ -14,7 +14,7 @@ export interface IntLit extends Exp {
   val: number;
 }
 
-export type BinOpType = '+' | '-' | '*' | '/';
+export type BinOpType = '+' | '-' | '*' | '/' | '**';
 export interface BinOp extends Exp {
   op: BinOpType;
   left: Exp;

@@ -66,6 +66,7 @@ export const evalVisitor = (n: Node): number => {
       else if (n.op === '-') res = left - right;
       else if (n.op === '*') res = left * right;
       else if (n.op === '/') res = left / right;
+      else if (n.op === '**') res = Math.pow(left, right);
       else throw new Error(`Unknown BinOp: ${n.op}`);
       stack.push(res);
     },
@@ -87,6 +88,10 @@ export const evalVisitor = (n: Node): number => {
 
 export const compileVisitor = (n: Node): string => {
   const out: string[] = [];
+  const removeParen = (n: Node): Node => {
+    if (n.type === 'Paren') return (n as Paren).exp;
+    return n;
+  };
   const ctx: VisitorContext = {
     visitIntLit: (ctx, n) => out.push(n.val.toString()),
     visitParen: (ctx, n) => {
@@ -95,9 +100,17 @@ export const compileVisitor = (n: Node): string => {
       out.push(')');
     },
     visitBinOp: (ctx, n) => {
-      visitNode(ctx, n.left);
-      out.push(n.op);
-      visitNode(ctx, n.right);
+      if (n.op === '**') {
+        out.push('Math.pow(');
+        visitNode(ctx, removeParen(n.left));
+        out.push(',');
+        visitNode(ctx, removeParen(n.right));
+        out.push(')');
+      } else {
+        visitNode(ctx, n.left);
+        out.push(n.op);
+        visitNode(ctx, n.right);
+      }
     },
     visitUnOp: (ctx, n) => {
       if (n.op !== '+') out.push(n.op);
