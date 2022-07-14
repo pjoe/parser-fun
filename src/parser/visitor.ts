@@ -1,4 +1,4 @@
-import { AstError, BinOp, IntLit, Node, Paren } from './ast';
+import { AstError, BinOp, IntLit, Node, Paren, UnOp } from './ast';
 
 export abstract class AstVisitor<T> {
   visit(n: Node): T {
@@ -33,12 +33,14 @@ export class EvalVisitor extends AstVisitor<number> {
 export interface VisitorContext {
   visitIntLit: (ctx: VisitorContext, n: IntLit) => void;
   visitBinOp: (ctx: VisitorContext, n: BinOp) => void;
+  visitUnOp: (ctx: VisitorContext, n: UnOp) => void;
   visitParen: (ctx: VisitorContext, n: Paren) => void;
 }
 
 export const visitNode = (ctx: VisitorContext, n: Node) => {
   if (n.type === 'IntLit') return ctx.visitIntLit(ctx, n as IntLit);
   if (n.type === 'BinOp') return ctx.visitBinOp(ctx, n as BinOp);
+  if (n.type === 'UnOp') return ctx.visitUnOp(ctx, n as UnOp);
   if (n.type === 'Paren') return ctx.visitParen(ctx, n as Paren);
   if (n.type === 'Error') throw new Error((n as AstError).msg);
   throw new Error(`Unknown node: ${n.type}`);
@@ -56,7 +58,7 @@ export const evalVisitor = (n: Node): number => {
     visitBinOp: (ctx, n) => {
       visitNode(ctx, n.left);
       visitNode(ctx, n.right);
-      if (stack.length < 2) throw new Error('Stack error');
+      if (stack.length < 2) throw new Error('BinOp stack error');
       const right = stack.pop()!;
       const left = stack.pop()!;
       let res: number;
@@ -65,6 +67,16 @@ export const evalVisitor = (n: Node): number => {
       else if (n.op === '*') res = left * right;
       else if (n.op === '/') res = left / right;
       else throw new Error(`Unknown BinOp: ${n.op}`);
+      stack.push(res);
+    },
+    visitUnOp: (ctx, n) => {
+      visitNode(ctx, n.exp);
+      if (stack.length < 1) throw new Error('UnOp stack error');
+      const right = stack.pop()!;
+      let res: number;
+      if (n.op === '+') res = right;
+      else if (n.op === '-') res = -right;
+      else throw new Error(`Unknown UnOp: ${n.op}`);
       stack.push(res);
     },
   };
@@ -86,6 +98,10 @@ export const compileVisitor = (n: Node): string => {
       visitNode(ctx, n.left);
       out.push(n.op);
       visitNode(ctx, n.right);
+    },
+    visitUnOp: (ctx, n) => {
+      if (n.op !== '+') out.push(n.op);
+      visitNode(ctx, n.exp);
     },
   };
   visitNode(ctx, n);
