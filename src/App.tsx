@@ -33,6 +33,7 @@ function App() {
             <option value="ast">Parse AST</option>
             <option value="eval">Evaluate</option>
             <option value="lex">Tokenize (Lex)</option>
+            <option value="compile">Compile</option>
           </select>
         </div>
         <div className="buttons">

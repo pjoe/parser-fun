@@ -1,7 +1,7 @@
 import { LexContext, next } from './lexer';
 import { parse, ParserContext } from './parser';
 import { Token } from './token';
-import { EvalVisitor } from './visitor';
+import { compileVisitor, evalVisitor } from './visitor';
 
 export const lex = (src: string) => {
   let i = 0;
@@ -48,14 +48,27 @@ const parseAst = (src: string) => {
   return parse(parserCtx);
 };
 
-const evaluate = (src: string) => {
-  const ast = parseAst(src);
-  const visitor = new EvalVisitor();
-  return visitor.visit(ast);
+const evaluate = (src: string): string => {
+  try {
+    const ast = parseAst(src);
+    return evalVisitor(ast).toString();
+  } catch (e) {
+    return 'Error: ' + e.message;
+  }
+};
+
+const compileAst = (src: string): string => {
+  try {
+    const ast = parseAst(src);
+    return compileVisitor(ast);
+  } catch (e) {
+    return 'Error: ' + e.message;
+  }
 };
 
 export const compile = (src: string, mode: string): string => {
   if (mode === 'lex') return lex(src);
-  if (mode === 'eval') return evaluate(src).toString();
+  if (mode === 'eval') return evaluate(src);
+  if (mode === 'compile') return compileAst(src);
   return JSON.stringify(parseAst(src), undefined, 1);
 };

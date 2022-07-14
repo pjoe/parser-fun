@@ -1,4 +1,4 @@
-import { BinOp, IntLit, Node, Paren } from './ast';
+import { AstError, BinOp, IntLit, Node, Paren } from './ast';
 
 export abstract class AstVisitor<T> {
   visit(n: Node): T {
@@ -29,3 +29,65 @@ export class EvalVisitor extends AstVisitor<number> {
     return this.visit(n.exp);
   }
 }
+
+export interface VisitorContext {
+  visitIntLit: (ctx: VisitorContext, n: IntLit) => void;
+  visitBinOp: (ctx: VisitorContext, n: BinOp) => void;
+  visitParen: (ctx: VisitorContext, n: Paren) => void;
+}
+
+export const visitNode = (ctx: VisitorContext, n: Node) => {
+  if (n.type === 'IntLit') return ctx.visitIntLit(ctx, n as IntLit);
+  if (n.type === 'BinOp') return ctx.visitBinOp(ctx, n as BinOp);
+  if (n.type === 'Paren') return ctx.visitParen(ctx, n as Paren);
+  if (n.type === 'Error') throw new Error((n as AstError).msg);
+  throw new Error(`Unknown node: ${n.type}`);
+};
+
+export const evalVisitor = (n: Node): number => {
+  const stack: number[] = [];
+  const ctx: VisitorContext = {
+    visitIntLit: (ctx, n) => {
+      stack.push(n.val);
+    },
+    visitParen: (ctx, n) => {
+      visitNode(ctx, n.exp);
+    },
+    visitBinOp: (ctx, n) => {
+      visitNode(ctx, n.left);
+      visitNode(ctx, n.right);
+      if (stack.length < 2) throw new Error('Stack error');
+      const right = stack.pop()!;
+      const left = stack.pop()!;
+      let res: number;
+      if (n.op === '+') res = left + right;
+      else if (n.op === '-') res = left - right;
+      else if (n.op === '*') res = left * right;
+      else if (n.op === '/') res = left / right;
+      else throw new Error(`Unknown BinOp: ${n.op}`);
+      stack.push(res);
+    },
+  };
+  visitNode(ctx, n);
+  if (stack.length < 1) throw new Error('Stack error');
+  return stack[0];
+};
+
+export const compileVisitor = (n: Node): string => {
+  const out: string[] = [];
+  const ctx: VisitorContext = {
+    visitIntLit: (ctx, n) => out.push(n.val.toString()),
+    visitParen: (ctx, n) => {
+      out.push('(');
+      visitNode(ctx, n.exp);
+      out.push(')');
+    },
+    visitBinOp: (ctx, n) => {
+      visitNode(ctx, n.left);
+      out.push(n.op);
+      visitNode(ctx, n.right);
+    },
+  };
+  visitNode(ctx, n);
+  return out.join('');
+};
