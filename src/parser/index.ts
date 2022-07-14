@@ -1,7 +1,7 @@
 import { LexContext, next } from './lexer';
 import { Token } from './token';
 
-const lex = (src: string) => {
+const lexDebug = (src: string) => {
   let i = 0;
   const getChar = (peek?: boolean) => {
     const res = i < src.length ? src[i] : null;
@@ -15,11 +15,7 @@ const lex = (src: string) => {
     if (t.type === 'EOF') break;
     res.push(t);
   }
-  return res;
-};
-
-export const parse = (src: string) => {
-  return lex(src)
+  return res
     .map(
       (t) =>
         `${t.type}: ${t.value ?? ''} ln ${t.pos.line} (${t.pos.start}:${
@@ -27,4 +23,8 @@ export const parse = (src: string) => {
         })`
     )
     .join('\n');
+};
+
+export const parse = (src: string) => {
+  return lexDebug(src);
 };
