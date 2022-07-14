@@ -1,8 +1,8 @@
 import { TokenType, Token, TokenValue } from './token';
 
-type GetCharFn = (peek?: boolean) => string | null;
+export type GetCharFn = (peek?: boolean) => string | null;
 
-interface LexContext {
+export interface LexContext {
   line: number;
   start: number;
   getChar: GetCharFn;
@@ -139,7 +139,7 @@ const consumeIdentOrKeyword = (ctx: LexContext, ch1: string): Token => {
   return makeToken(ctx, 'Ident', str.length, str);
 };
 
-const next = (ctx: LexContext): Token => {
+export const next = (ctx: LexContext): Token => {
   while (true) {
     const ch1 = ctx.getChar();
     if (ch1 === null) return makeToken(ctx, 'EOF', 0);
@@ -264,22 +264,3 @@ const next = (ctx: LexContext): Token => {
     return makeToken(ctx, 'Unknown', 1, ch1);
   }
 };
-
-const lex = (src: string) => {
-  let i = 0;
-  const getChar = (peek?: boolean) => {
-    const res = i < src.length ? src[i] : null;
-    if (!peek) ++i;
-    return res;
-  };
-  const res: Token[] = [];
-  const ctx: LexContext = { getChar, line: 1, start: 1 };
-  while (true) {
-    const t = next(ctx);
-    if (t.type === 'EOF') break;
-    res.push(t);
-  }
-  return res;
-};
-
-export { lex };
