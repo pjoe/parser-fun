@@ -3,8 +3,9 @@ import './App.css';
 import { compile } from './parser';
 
 function App() {
-  const [source, setSource] = useState('');
-  const [result, setResult] = useState('');
+  const [source, setSource] = useState('(1+2)*3');
+  const [result, setResult] = useState(compile(source, 'ast'));
+  const [mode, setMode] = useState('ast');
 
   return (
     <div className="App">
@@ -20,8 +21,24 @@ function App() {
         ></textarea>
       </div>
       <div className="card">
+        <div className="mode">
+          <select
+            onChange={(e) => {
+              const m = e.target.value;
+              setMode(m);
+              setResult(compile(source, m));
+            }}
+            value={mode}
+          >
+            <option value="ast">Parse AST</option>
+            <option value="eval">Evaluate</option>
+            <option value="lex">Tokenize (Lex)</option>
+          </select>
+        </div>
         <div className="buttons">
-          <button onClick={() => setResult(compile(source))}>Parse</button>
+          <button onClick={() => setResult(compile(source, mode))}>
+            Parse
+          </button>
           <button
             onClick={() => {
               setSource('');

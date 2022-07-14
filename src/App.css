@@ -9,6 +9,10 @@
   padding: 0.5em;
 }
 
+.mode {
+  margin-bottom: 0.5em;
+}
+
 .buttons {
   display: flex;
   justify-content: center;
@@ -25,7 +29,7 @@
   width: 100%;
   min-height: 45ex;
   font-size: 0.9rem;
-  line-height: 1.1rem;
+  line-height: 1.1;
   border: 1px solid #666;
   padding: 0.2em;
 }
