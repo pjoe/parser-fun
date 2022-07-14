@@ -247,6 +247,17 @@ export const next = (ctx: LexContext): Token => {
             return makeToken(ctx, 'Star', 1);
         }
       }
+      case '/': {
+        const ch2 = ctx.getChar(true);
+        switch (ch2) {
+          case '=':
+            ctx.getChar();
+            return makeToken(ctx, 'DivAssign', 2);
+
+          default:
+            return makeToken(ctx, 'Slash', 1);
+        }
+      }
       case '=': {
         const ch2 = ctx.getChar(true);
         switch (ch2) {

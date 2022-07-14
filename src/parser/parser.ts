@@ -1,4 +1,4 @@
-import { Node, AstError, IntLit } from './ast';
+import { Node, AstError, IntLit, Exp, BinOpType, BinOp } from './ast';
 import { Token, TokenType } from './token';
 
 export type GetTokenFn = (peek?: boolean) => Token;
@@ -20,9 +20,61 @@ const parseIntLit = (ctx: ParserContext): IntLit => {
   return { type: 'IntLit', val: t.value as number };
 };
 
+// ParenExp ::= ( '(' Exp ')' ) | IntLit
+const parseParenExp = (ctx: ParserContext): Exp => {
+  const t = peek(ctx);
+  if (t.type === 'LParen') {
+    next(ctx);
+    const e = parseExp(ctx);
+    expect(ctx, 'RParen');
+    return e;
+  } else {
+    return parseIntLit(ctx);
+  }
+};
+
+// MulExp ::= ParenExp {('*' | '/') ParenExp}
+const parseMulExp = (ctx: ParserContext): Exp => {
+  let e: Exp = parseParenExp(ctx);
+  let t = peek(ctx);
+  while (true) {
+    let op: BinOpType;
+    if (t.type === 'Star') op = '*';
+    else if (t.type === 'Slash') op = '/';
+    else break;
+    next(ctx);
+    const right = parseParenExp(ctx);
+    const binop: BinOp = { type: 'BinOp', op, left: e, right };
+    e = binop;
+    t = peek(ctx);
+  }
+  return e;
+};
+
+// AddExp ::= MulExp {('+' | '-' ) MulExp}
+const parseAddExp = (ctx: ParserContext): Exp => {
+  let e: Exp = parseMulExp(ctx);
+  let t = peek(ctx);
+  while (true) {
+    let op: BinOpType;
+    if (t.type === 'Plus') op = '+';
+    else if (t.type === 'Dash') op = '-';
+    else break;
+    next(ctx);
+    const right = parseMulExp(ctx);
+    const binop: BinOp = { type: 'BinOp', op, left: e, right };
+    e = binop;
+    t = peek(ctx);
+  }
+  return e;
+};
+
+// Exp ::= AddExp
+const parseExp = (ctx: ParserContext): Exp => parseAddExp(ctx);
+
 export const parse = (ctx: ParserContext): Node => {
   try {
-    const n = parseIntLit(ctx);
+    const n = parseExp(ctx);
     expect(ctx, 'EOF');
     return n;
   } catch (e) {
