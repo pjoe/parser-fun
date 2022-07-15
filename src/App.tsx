@@ -4,7 +4,7 @@ import { compile } from './parser';
 
 function App() {
   const [source, setSource] = useState('(1+2)*3');
-  const [result, setResult] = useState(compile(source, 'ast'));
+  const [result, setResult] = useState(''); //compile(source, 'ast'));
   const [mode, setMode] = useState('ast');
 
   return (

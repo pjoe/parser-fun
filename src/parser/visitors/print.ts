@@ -10,6 +10,7 @@ export const printVisitor = (n: Node): string => {
     while (true) {
       if (i <= 0) break;
       res += ' ';
+      --i;
     }
     res += str;
     out.push(res);
@@ -34,14 +35,14 @@ export const printVisitor = (n: Node): string => {
       --level;
     },
     visitBinOp: (ctx, n) => {
-      add('BinOp ' + out.push(n.op));
+      add('BinOp ' + n.op);
       ++level;
       visitNode(ctx, n.left);
       visitNode(ctx, n.right);
       --level;
     },
     visitUnOp: (ctx, n) => {
-      add('UnOp ' + out.push(n.op));
+      add('UnOp ' + n.op);
       ++level;
       visitNode(ctx, n.exp);
       --level;
