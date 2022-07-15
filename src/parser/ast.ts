@@ -5,7 +5,8 @@ export type NodeType =
   | 'BinOp'
   | 'UnOp'
   | 'Paren'
-  | 'VarDecl';
+  | 'VarDecl'
+  | 'VarId';
 
 export interface Node {
   type: NodeType;
@@ -44,4 +45,8 @@ export interface Paren extends Exp {
 export interface VarDecl extends Exp {
   ident: string;
   exp: Exp;
+}
+
+export interface VarId extends Exp {
+  ident: string;
 }

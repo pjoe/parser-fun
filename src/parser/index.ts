@@ -1,3 +1,4 @@
+import { AstError } from './ast';
 import { LexContext, next } from './lexer';
 import { parse, ParserContext } from './parser';
 import { Token } from './token';
@@ -68,10 +69,18 @@ const compileAst = (src: string): string => {
   }
 };
 
+const print = (src: string): string => {
+  try {
+    const ast = parseAst(src);
+    return printVisitor(ast);
+  } catch (e) {
+    return 'Error: ' + e.message;
+  }
+};
+
 export const compile = (src: string, mode: string): string => {
   if (mode === 'lex') return lex(src);
   if (mode === 'eval') return evaluate(src);
   if (mode === 'compile') return compileAst(src);
-  //return JSON.stringify(parseAst(src), undefined, 1);
-  return printVisitor(parseAst(src));
+  return print(src);
 };

@@ -40,6 +40,15 @@ export const compileVisitor = (n: Node): string => {
       if (n.op !== '+') out.push(n.op);
       visitNode(ctx, n.exp);
     },
+    visitVarDecl: (ctx, n) => {
+      out.push('let ');
+      out.push(n.ident);
+      out.push(' = ');
+      visitNode(ctx, n.exp);
+    },
+    visitVarId: (ctx, n) => {
+      out.push(n.ident);
+    },
   };
   visitNode(ctx, n);
   return out.join('');

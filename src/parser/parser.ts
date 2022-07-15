@@ -9,6 +9,8 @@ import {
   UnOpType,
   UnOp,
   ExpList,
+  VarDecl,
+  VarId,
 } from './ast';
 import { Token, TokenType } from './token';
 
@@ -31,18 +33,22 @@ const parseIntLit = (ctx: ParserContext): IntLit => {
   return { type: 'IntLit', val: t.value as number };
 };
 
-// PrimaryExp ::= IntLit | '(' Exp ')'
+// VarId ::= 'Ident'
+const parseVarId = (ctx: ParserContext): VarId => {
+  const t = expect(ctx, 'Ident');
+  return { type: 'VarId', ident: t.value as string };
+};
+
+// PrimaryExp ::= VarId | IntLit | '(' Exp ')'
 const parsePrimaryExp = (ctx: ParserContext): Exp => {
   const t = peek(ctx);
-  if (t.type === 'IntConst') {
-    return parseIntLit(ctx);
-  } else {
-    expect(ctx, 'LParen');
-    const exp = parseExp(ctx);
-    expect(ctx, 'RParen');
-    const paren: Paren = { type: 'Paren', exp };
-    return paren;
-  }
+  if (t.type === 'Ident') return parseVarId(ctx);
+  if (t.type === 'IntConst') return parseIntLit(ctx);
+  expect(ctx, 'LParen');
+  const exp = parseExp(ctx);
+  expect(ctx, 'RParen');
+  const paren: Paren = { type: 'Paren', exp };
+  return paren;
 };
 
 // PowerExp ::= PrimaryExp ['**' UnaryExp]
@@ -105,16 +111,29 @@ const parseAddExp = (ctx: ParserContext): Exp => {
   return e;
 };
 
-// Exp ::= AddExp
-const parseExp = (ctx: ParserContext): Exp => parseAddExp(ctx);
+// VarDecl ::= 'Let' 'Ident' '=' Exp
+const parseVarDecl = (ctx: ParserContext): VarDecl => {
+  expect(ctx, 'Let');
+  const ident = expect(ctx, 'Ident').value as string;
+  expect(ctx, 'Assign');
+  const exp = parseExp(ctx);
+  return { type: 'VarDecl', ident, exp };
+};
+
+// Exp ::= VarDecl | AddExp
+const parseExp = (ctx: ParserContext): Exp => {
+  const t = peek(ctx);
+  if (t.type === 'Let') return parseVarDecl(ctx);
+  return parseAddExp(ctx);
+};
 
 // ExpList ::= Exp { 'NEWLINE' Exp}
 const parseExpList = (ctx: ParserContext): ExpList => {
-  const exps: Exp[] = [parseAddExp(ctx)];
+  const exps: Exp[] = [parseExp(ctx)];
   let t = peek(ctx);
   while (t.type === 'NEWLINE') {
     next(ctx);
-    exps.push(parseAddExp(ctx));
+    exps.push(parseExp(ctx));
     t = peek(ctx);
   }
   return { type: 'ExpList', exps };

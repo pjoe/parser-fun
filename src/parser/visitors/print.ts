@@ -47,6 +47,15 @@ export const printVisitor = (n: Node): string => {
       visitNode(ctx, n.exp);
       --level;
     },
+    visitVarDecl: (ctx, n) => {
+      add('VarDecl ' + n.ident);
+      ++level;
+      visitNode(ctx, n.exp);
+      --level;
+    },
+    visitVarId: (ctx, n) => {
+      add('VarId ' + n.ident);
+    },
   };
   visitNode(ctx, n);
   return out.join('\n');

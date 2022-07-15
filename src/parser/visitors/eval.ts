@@ -3,6 +3,7 @@ import { visitNode, VisitorContext } from '../visitor';
 
 export const evalVisitor = (n: Node): number => {
   const stack: number[] = [];
+  const vars: Record<string, number> = {};
   const ctx: VisitorContext = {
     visitExpList: (ctx, n) => {
       let i = 0;
@@ -42,6 +43,15 @@ export const evalVisitor = (n: Node): number => {
       else if (n.op === '-') res = -right;
       else throw new Error(`Unknown UnOp: ${n.op}`);
       stack.push(res);
+    },
+    visitVarDecl: (ctx, n) => {
+      visitNode(ctx, n.exp);
+      if (stack.length < 1) throw new Error('VarDecl stack error');
+      vars[n.ident] = stack.pop()!;
+    },
+    visitVarId: (ctx, n) => {
+      if (!(n.ident in vars)) throw new Error('Unknown var: ' + n.ident);
+      stack.push(vars[n.ident]);
     },
   };
   visitNode(ctx, n);
