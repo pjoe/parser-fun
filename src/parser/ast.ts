@@ -1,4 +1,11 @@
-export type NodeType = 'Error' | 'IntLit' | 'BinOp' | 'UnOp' | 'Paren';
+export type NodeType =
+  | 'Error'
+  | 'ExpList'
+  | 'IntLit'
+  | 'BinOp'
+  | 'UnOp'
+  | 'Paren'
+  | 'VarDecl';
 
 export interface Node {
   type: NodeType;
@@ -9,6 +16,10 @@ export interface AstError extends Node {
 }
 
 export interface Exp extends Node {}
+
+export interface ExpList extends Node {
+  exps: Exp[];
+}
 
 export interface IntLit extends Exp {
   val: number;
@@ -27,5 +38,10 @@ export interface UnOp extends Exp {
 }
 
 export interface Paren extends Exp {
+  exp: Exp;
+}
+
+export interface VarDecl extends Exp {
+  ident: string;
   exp: Exp;
 }

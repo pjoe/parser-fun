@@ -8,6 +8,7 @@ import {
   Paren,
   UnOpType,
   UnOp,
+  ExpList,
 } from './ast';
 import { Token, TokenType } from './token';
 
@@ -107,9 +108,21 @@ const parseAddExp = (ctx: ParserContext): Exp => {
 // Exp ::= AddExp
 const parseExp = (ctx: ParserContext): Exp => parseAddExp(ctx);
 
+// ExpList ::= Exp { 'NEWLINE' Exp}
+const parseExpList = (ctx: ParserContext): ExpList => {
+  const exps: Exp[] = [parseAddExp(ctx)];
+  let t = peek(ctx);
+  while (t.type === 'NEWLINE') {
+    next(ctx);
+    exps.push(parseAddExp(ctx));
+    t = peek(ctx);
+  }
+  return { type: 'ExpList', exps };
+};
+
 export const parse = (ctx: ParserContext): Node => {
   try {
-    const n = parseExp(ctx);
+    const n = parseExpList(ctx);
     expect(ctx, 'EOF');
     return n;
   } catch (e) {
