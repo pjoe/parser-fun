@@ -9,6 +9,13 @@ export interface LexContext {
   getChar: GetCharFn;
 }
 
+export const makeContext = (getChar: GetCharFn): LexContext => ({
+  getChar,
+  line: 1,
+  start: 1,
+  parenCount: 0,
+});
+
 const makeToken = (
   ctx: LexContext,
   type: TokenType,

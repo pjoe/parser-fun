@@ -1,5 +1,5 @@
-import { AstError } from './ast';
-import { LexContext, next } from './lexer';
+//import { makeContext, next } from './lexer';
+import { makeContext, next } from './func-lexer';
 import { parse, ParserContext } from './parser';
 import { Token } from './token';
 import { compileVisitor } from './visitors/compile';
@@ -13,7 +13,7 @@ export const lex = (src: string) => {
     if (!peek) ++i;
     return res;
   };
-  const lexCtx: LexContext = { getChar, line: 1, start: 1, parenCount: 0 };
+  const lexCtx = makeContext(getChar);
   const res: Token[] = [];
 
   while (true) {
@@ -38,7 +38,7 @@ const parseAst = (src: string) => {
     if (!peek) ++i;
     return res;
   };
-  const lexCtx: LexContext = { getChar, line: 1, start: 1, parenCount: 0 };
+  const lexCtx = makeContext(getChar);
 
   let token = next(lexCtx);
   const getToken = (peek?: boolean): Token => {

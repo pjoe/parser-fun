@@ -41,6 +41,7 @@ export type TokenType =
   | 'While'
   | 'Let'
   | 'Return'
+  | 'Func'
   // others
   | 'Comma'
   | 'Colon'
