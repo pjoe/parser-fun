@@ -48,6 +48,7 @@ export const evalVisitor = (n: Node): number => {
       visitNode(ctx, n.exp);
       if (stack.length < 1) throw new Error('VarDecl stack error');
       vars[n.ident] = stack.pop()!;
+      stack.push(vars[n.ident]);
     },
     visitVarId: (ctx, n) => {
       if (!(n.ident in vars)) throw new Error('Unknown var: ' + n.ident);

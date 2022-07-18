@@ -127,14 +127,16 @@ const parseExp = (ctx: ParserContext): Exp => {
   return parseAddExp(ctx);
 };
 
-// ExpList ::= Exp { 'NEWLINE' Exp}
+// ExpList ::= Exp { 'NEWLINE' { 'NEWLINE' } Exp}
 const parseExpList = (ctx: ParserContext): ExpList => {
   const exps: Exp[] = [parseExp(ctx)];
   let t = peek(ctx);
   while (t.type === 'NEWLINE') {
     next(ctx);
-    exps.push(parseExp(ctx));
     t = peek(ctx);
+    if (t.type === 'NEWLINE') continue;
+    if (t.type === 'EOF') break;
+    exps.push(parseExp(ctx));
   }
   return { type: 'ExpList', exps };
 };
