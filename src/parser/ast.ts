@@ -6,7 +6,9 @@ export type NodeType =
   | 'UnOp'
   | 'Paren'
   | 'VarDecl'
-  | 'VarId';
+  | 'VarId'
+  | 'FuncDecl'
+  | 'FuncCall';
 
 export interface Node {
   type: NodeType;
@@ -49,4 +51,14 @@ export interface VarDecl extends Exp {
 
 export interface VarId extends Exp {
   ident: string;
+}
+
+export interface FuncDecl extends Exp {
+  params: string[];
+  exp: Exp;
+}
+
+export interface FuncCall extends Exp {
+  func: Exp;
+  params: Exp[];
 }

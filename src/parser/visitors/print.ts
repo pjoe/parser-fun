@@ -56,6 +56,25 @@ export const printVisitor = (n: Node): string => {
     visitVarId: (ctx, n) => {
       add('VarId ' + n.ident);
     },
+    visitFuncDecl: (ctx, n) => {
+      add('FuncDecl ' + n.params.join(', '));
+      ++level;
+      visitNode(ctx, n.exp);
+      --level;
+    },
+    visitFuncCall: (ctx, n) => {
+      add('FuncCall');
+      ++level;
+      add('func');
+      ++level;
+      visitNode(ctx, n.func);
+      --level;
+      add('params');
+      ++level;
+      n.params.forEach((e) => visitNode(ctx, e));
+      --level;
+      --level;
+    },
   };
   visitNode(ctx, n);
   return out.join('\n');

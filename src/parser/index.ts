@@ -1,5 +1,5 @@
 //import { makeContext, next } from './lexer';
-import { makeContext, next } from './func-lexer';
+import { makeContext, next } from './lexer';
 import { parse, ParserContext } from './parser';
 import { Token } from './token';
 import { compileVisitor } from './visitors/compile';
@@ -54,7 +54,7 @@ const parseAst = (src: string) => {
 const evaluate = (src: string): string => {
   try {
     const ast = parseAst(src);
-    return evalVisitor(ast).toString();
+    return evalVisitor(ast);
   } catch (e) {
     return 'Error: ' + e.message;
   }

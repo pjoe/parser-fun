@@ -11,6 +11,8 @@ import {
   ExpList,
   VarDecl,
   VarId,
+  FuncDecl,
+  FuncCall,
 } from './ast';
 import { Token, TokenType } from './token';
 
@@ -51,9 +53,36 @@ const parsePrimaryExp = (ctx: ParserContext): Exp => {
   return paren;
 };
 
+// PostfixExpr ::= PrimaryExp
+//  [
+//    '(' [ Exp { 'Comma' Exp } ] ')'
+//  ]
+const parsePostfixExpr = (ctx: ParserContext): Exp => {
+  let exp = parsePrimaryExp(ctx);
+  let t = peek(ctx);
+  if (t.type === 'LParen') {
+    next(ctx);
+    const params: Exp[] = [];
+    t = peek(ctx);
+    if (t.type !== 'RParen') {
+      params.push(parseExp(ctx));
+      while (true) {
+        t = peek(ctx);
+        if (t.type !== 'Comma') break;
+        next(ctx);
+        params.push(parseExp(ctx));
+      }
+    }
+    expect(ctx, 'RParen');
+    const funcCall: FuncCall = { type: 'FuncCall', func: exp, params };
+    return funcCall;
+  }
+  return exp;
+};
+
 // PowerExp ::= PrimaryExp ['**' UnaryExp]
 const parsePowerExp = (ctx: ParserContext): Exp => {
-  const left = parsePrimaryExp(ctx);
+  const left = parsePostfixExpr(ctx);
   const t = peek(ctx);
   if (t.type !== 'Power') return left;
   next(ctx);
@@ -120,9 +149,40 @@ const parseVarDecl = (ctx: ParserContext): VarDecl => {
   return { type: 'VarDecl', ident, exp };
 };
 
-// Exp ::= VarDecl | AddExp
+// ArgList ::= [ 'Ident' { 'Comma', Ident} ]
+const parseArgList = (ctx: ParserContext): string[] => {
+  const args: string[] = [];
+  const t = peek(ctx);
+  if (t.type !== 'Ident') return args;
+  args.push(next(ctx).value as string);
+  while (true) {
+    const t = peek(ctx);
+    if (t.type !== 'Comma') break;
+    next(ctx);
+    const ident = expect(ctx, 'Ident').value as string;
+    args.push(ident);
+  }
+  return args;
+};
+
+// FuncDecl ::= 'Func' 'LParen' ArgList 'RParen' 'Arrow' Exp
+const parseFuncDecl = (ctx: ParserContext): FuncDecl => {
+  expect(ctx, 'Func');
+  expect(ctx, 'LParen');
+
+  const params = parseArgList(ctx);
+
+  expect(ctx, 'RParen');
+  expect(ctx, 'Arrow');
+
+  const exp = parseExp(ctx);
+  return { type: 'FuncDecl', exp, params };
+};
+
+// Exp ::= FuncDecl | VarDecl | AddExp
 const parseExp = (ctx: ParserContext): Exp => {
   const t = peek(ctx);
+  if (t.type === 'Func') return parseFuncDecl(ctx);
   if (t.type === 'Let') return parseVarDecl(ctx);
   return parseAddExp(ctx);
 };
@@ -137,6 +197,7 @@ const parseExpList = (ctx: ParserContext): ExpList => {
     if (t.type === 'NEWLINE') continue;
     if (t.type === 'EOF') break;
     exps.push(parseExp(ctx));
+    t = peek(ctx);
   }
   return { type: 'ExpList', exps };
 };

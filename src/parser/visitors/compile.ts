@@ -49,6 +49,12 @@ export const compileVisitor = (n: Node): string => {
     visitVarId: (ctx, n) => {
       out.push(n.ident);
     },
+    visitFuncDecl: (ctx, n) => {
+      out.push('(');
+      out.push(n.params.join(', '));
+      out.push(') => ');
+      visitNode(ctx, n.exp);
+    },
   };
   visitNode(ctx, n);
   return out.join('');

@@ -124,26 +124,16 @@ const consumeIdentOrKeyword = (ctx: LexContext, ch1: string): Token => {
     ctx.getChar(); // consume the char
     str += ch2;
   }
-  switch (str) {
-    case 'if':
-      return makeToken(ctx, 'If', str.length);
-    case 'else':
-      return makeToken(ctx, 'Else', str.length);
-    case 'break':
-      return makeToken(ctx, 'Break', str.length);
-    case 'continue':
-      return makeToken(ctx, 'Continue', str.length);
-    case 'while':
-      return makeToken(ctx, 'While', str.length);
-    case 'let':
-      return makeToken(ctx, 'Let', str.length);
-    case 'return':
-      return makeToken(ctx, 'Return', str.length);
-    case 'true':
-      return makeToken(ctx, 'BoolConst', str.length, true);
-    case 'false':
-      return makeToken(ctx, 'BoolConst', str.length, false);
-  }
+  if (str === 'fn') return makeToken(ctx, 'Func', str.length);
+  if (str === 'if') return makeToken(ctx, 'If', str.length);
+  if (str === 'else') return makeToken(ctx, 'Else', str.length);
+  if (str === 'break') return makeToken(ctx, 'Break', str.length);
+  if (str === 'continue') return makeToken(ctx, 'Continue', str.length);
+  if (str === 'while') return makeToken(ctx, 'While', str.length);
+  if (str === 'let') return makeToken(ctx, 'Let', str.length);
+  if (str === 'return') return makeToken(ctx, 'Return', str.length);
+  if (str === 'true') return makeToken(ctx, 'BoolConst', str.length, true);
+  if (str === 'false') return makeToken(ctx, 'BoolConst', str.length, false);
   return makeToken(ctx, 'Ident', str.length, str);
 };
 
