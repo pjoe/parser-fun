@@ -54,13 +54,12 @@ const parsePrimaryExp = (ctx: ParserContext): Exp => {
 };
 
 // PostfixExpr ::= PrimaryExp
-//  [
-//    '(' [ Exp { 'Comma' Exp } ] ')'
-//  ]
+//  { '(' [ Exp { 'Comma' Exp } ] ')' }
 const parsePostfixExpr = (ctx: ParserContext): Exp => {
   let exp = parsePrimaryExp(ctx);
   let t = peek(ctx);
-  if (t.type === 'LParen') {
+  while (true) {
+    if (t.type !== 'LParen') break;
     next(ctx);
     const params: Exp[] = [];
     t = peek(ctx);
@@ -75,7 +74,8 @@ const parsePostfixExpr = (ctx: ParserContext): Exp => {
     }
     expect(ctx, 'RParen');
     const funcCall: FuncCall = { type: 'FuncCall', func: exp, params };
-    return funcCall;
+    exp = funcCall;
+    t = peek(ctx);
   }
   return exp;
 };
