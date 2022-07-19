@@ -179,23 +179,42 @@ const parseFuncDecl = (ctx: ParserContext): FuncDecl => {
   return { type: 'FuncDecl', exp, params };
 };
 
-// Exp ::= FuncDecl | VarDecl | AddExp
+// Block ::= '{' ExpList '}'
+const parseBlock = (ctx: ParserContext): ExpList => {
+  expect(ctx, 'LBrace');
+  const exps = parseExpList(ctx);
+  expect(ctx, 'RBrace');
+  return exps;
+};
+
+// Exp ::= Block | FuncDecl | VarDecl | AddExp
 const parseExp = (ctx: ParserContext): Exp => {
   const t = peek(ctx);
+  if (t.type === 'LBrace') return parseBlock(ctx);
   if (t.type === 'Func') return parseFuncDecl(ctx);
   if (t.type === 'Let') return parseVarDecl(ctx);
   return parseAddExp(ctx);
 };
 
-// ExpList ::= Exp { 'NEWLINE' { 'NEWLINE' } Exp}
+// ExpList ::= { 'NEWLINE' } Exp { 'NEWLINE' { 'NEWLINE' } Exp}
 const parseExpList = (ctx: ParserContext): ExpList => {
-  const exps: Exp[] = [parseExp(ctx)];
   let t = peek(ctx);
   while (t.type === 'NEWLINE') {
     next(ctx);
     t = peek(ctx);
+  }
+
+  const exps: Exp[] = [parseExp(ctx)];
+
+  t = peek(ctx);
+  while (t.type === 'NEWLINE') {
+    next(ctx);
+    t = peek(ctx);
     if (t.type === 'NEWLINE') continue;
+
     if (t.type === 'EOF') break;
+    if (t.type === 'RBrace') break;
+
     exps.push(parseExp(ctx));
     t = peek(ctx);
   }

@@ -118,5 +118,5 @@ export const evalVisitor = (n: Node): string => {
   visitNode(ctx, n);
   if (stack.length < 1) throw new Error('Stack error');
   const res = stack.pop()!;
-  return res.val.toString();
+  return JSON.stringify(res.val);
 };
