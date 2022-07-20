@@ -109,5 +109,9 @@ export const compileVisitor = (n: Node): string => {
     },
   };
   visitNode(ctx, n);
-  return out.join('');
+  const noEmptyLines = out
+    .join('')
+    .split('\n')
+    .filter((l) => l !== ';');
+  return noEmptyLines.join('\n');
 };
