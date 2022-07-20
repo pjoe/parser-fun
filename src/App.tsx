@@ -2,8 +2,11 @@ import { useState } from 'react';
 import './App.css';
 import { compile } from './parser';
 
+const sample = `let add = fn(x, y) => x + y
+add(2,3)`;
+
 function App() {
-  const [source, setSource] = useState('(1+2)*3');
+  const [source, setSource] = useState(sample);
   const [result, setResult] = useState(''); //compile(source, 'ast'));
   const [mode, setMode] = useState('ast');
 
@@ -15,7 +18,7 @@ function App() {
         <textarea
           className="source"
           id="src"
-          rows={3}
+          rows={5}
           onChange={(e) => setSource(e.target.value)}
           value={source}
         ></textarea>
@@ -34,6 +37,7 @@ function App() {
             <option value="eval">Evaluate</option>
             <option value="lex">Tokenize (Lex)</option>
             <option value="compile">Compile</option>
+            <option value="run">Compile &amp; Run</option>
           </select>
         </div>
         <div className="buttons">

@@ -78,9 +78,16 @@ const print = (src: string): string => {
   }
 };
 
+const run = (src: string): string => {
+  const code = compileAst(src);
+  const res = eval(code);
+  return code + '\n// --- result: ' + res;
+};
+
 export const compile = (src: string, mode: string): string => {
   if (mode === 'lex') return lex(src);
   if (mode === 'eval') return evaluate(src);
   if (mode === 'compile') return compileAst(src);
+  if (mode === 'run') return run(src);
   return print(src);
 };
