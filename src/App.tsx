@@ -33,6 +33,7 @@ function App() {
             }}
             value={mode}
           >
+            <option value="combinator">Combinator</option>
             <option value="ast">Parse AST</option>
             <option value="eval">Evaluate</option>
             <option value="lex">Tokenize (Lex)</option>

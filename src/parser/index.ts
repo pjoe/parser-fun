@@ -1,4 +1,5 @@
 //import { makeContext, next } from './lexer';
+import { combi } from './combi';
 import { makeContext, next } from './lexer';
 import { parse, ParserContext } from './parser';
 import { Token } from './token';
@@ -89,5 +90,6 @@ export const compile = (src: string, mode: string): string => {
   if (mode === 'eval') return evaluate(src);
   if (mode === 'compile') return compileAst(src);
   if (mode === 'run') return run(src);
+  if (mode === 'combinator') return combi(src);
   return print(src);
 };
